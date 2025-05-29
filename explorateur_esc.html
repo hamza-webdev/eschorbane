@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorateur Interactif: Prompt Appli الأمل الرياضي بشربان</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Visualization & Content Choices: 
+        - Prompt Sections (Titre, Objectif, Cible, Fonctionnalités, etc.) -> Goal: Présentation Claire et Structurée -> Viz/Presentation: Onglets, Titres, Listes, Blocs de texte formatés, Accordéons -> Interaction: Navigation par onglets, Ouverture/Fermeture des accordéons -> Justification: Améliore la lisibilité et l'accès sélectif à l'information du prompt -> Library/Method: HTML, Tailwind CSS, Vanilla JS.
+        - Densité des sous-fonctionnalités (Nombre de sous-points par fonctionnalité clé) -> Goal: Comparaison Visuelle -> Viz/Presentation: Graphique à barres horizontales -> Interaction: Survol des barres pour tooltips (natif Chart.js) -> Justification: Offre un aperçu rapide de la complexité relative des différentes fonctionnalités listées dans le prompt -> Library/Method: Chart.js (Canvas).
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Fallback font, Tailwind usually handles this */
+            background-color: #f8fafc; /* Light gray background */
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button.active {
+            border-color: #34D399; /* Emerald-400 for active tab */
+            color: #059669; /* Emerald-600 */
+            background-color: #D1FAE5; /* Emerald-100 */
+        }
+        .accordion-content {
+            display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+        .accordion-content.open {
+            display: block; /* Keep this for transition, max-height handles visibility */
+            max-height: 1000px; /* Adjust as needed, should be larger than content */
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px; /* Adjusted for potentially longer labels */
+            margin-left: auto;
+            margin-right: auto;
+            height: 450px; /* Adjusted for horizontal bar chart with more items */
+            max-height: 500px;
+        }
+         @media (min-width: 768px) {
+            .chart-container {
+                height: 500px; /* Taller on larger screens */
+            }
+        }
+        /* Custom scrollbar for better aesthetics if content overflows */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* cool-gray-300 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* cool-gray-400 */
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-6xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-emerald-700">Explorateur Interactif du Prompt</h1>
+            <p class="text-lg text-slate-600 mt-2">Application Mobile pour <span class="font-semibold">الأمل الرياضي بشربان (ESC)</span></p>
+        </header>
+
+        <div class="bg-white shadow-xl rounded-lg p-6 sm:p-8">
+            <div class="mb-6 border-b border-slate-200">
+                <nav class="flex flex-wrap -mb-px" aria-label="Tabs">
+                    <button class="tab-button active text-slate-600 hover:text-emerald-600 hover:border-emerald-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm sm:text-base rounded-t-md focus:outline-none" data-tab="overview">
+                        Vue d'Ensemble
+                    </button>
+                    <button class="tab-button text-slate-600 hover:text-emerald-600 hover:border-emerald-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm sm:text-base rounded-t-md focus:outline-none" data-tab="features">
+                        Fonctionnalités Clés
+                    </button>
+                    <button class="tab-button text-slate-600 hover:text-emerald-600 hover:border-emerald-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm sm:text-base rounded-t-md focus:outline-none" data-tab="design_ux">
+                        Design & UX
+                    </button>
+                    <button class="tab-button text-slate-600 hover:text-emerald-600 hover:border-emerald-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm sm:text-base rounded-t-md focus:outline-none" data-tab="specs">
+                        Spécifications
+                    </button>
+                </nav>
+            </div>
+
+            <div>
+                <div id="overview" class="tab-content active space-y-6">
+                    <p class="text-sm text-slate-500 italic">Cette section présente les informations fondamentales du projet d'application mobile : son titre, son objectif principal et le public qu'elle vise à atteindre.</p>
+                    
+                    <section class="p-4 border border-slate-200 rounded-md bg-slate-50">
+                        <h2 class="text-xl font-semibold text-emerald-600 mb-3">1. Titre du Projet</h2>
+                        <p>Application Mobile Officielle pour l'équipe de football الأمل الرياضي بشربان (ESC).</p>
+                    </section>
+
+                    <section class="p-4 border border-slate-200 rounded-md bg-slate-50">
+                        <h2 class="text-xl font-semibold text-emerald-600 mb-3">2. Objectif Principal de l'Application</h2>
+                        <p>Créer une plateforme mobile centralisée et engageante pour les supporters, les joueurs et le staff de l'équipe الأمل الرياضي بشربان. L'application vise à renforcer la communauté autour du club, à fournir des informations en temps réel, à faciliter l'interaction et à promouvoir l'image du club.</p>
+                    </section>
+
+                    <section class="p-4 border border-slate-200 rounded-md bg-slate-50">
+                        <h2 class="text-xl font-semibold text-emerald-600 mb-3">3. Public Cible</h2>
+                        <ul class="list-disc list-inside space-y-1 text-slate-700">
+                            <li><strong>Supporters fidèles et occasionnels :</strong> Locaux, de la diaspora, et nouveaux fans.</li>
+                            <li><strong>Joueurs et membres du staff technique/médical :</strong> Pour informations internes et communication.</li>
+                            <li><strong>Dirigeants du club :</strong> Pour la gestion de la communication et la promotion.</li>
+                            <li><strong>Médias et journalistes sportifs locaux :</strong> Comme source d'information officielle.</li>
+                            <li><strong>Familles des joueurs.</strong></li>
+                            <li><strong>Potentiels sponsors et partenaires.</strong></li>
+                            <li><strong>Communauté locale de Cherbane</strong> souhaitant suivre les activités du club.</li>
+                        </ul>
+                    </section>
+                </div>
+
+                <div id="features" class="tab-content space-y-6">
+                    <p class="text-sm text-slate-500 italic">Découvrez en détail les fonctionnalités requises pour l'application mobile. Chaque section peut être étendue pour afficher les spécificités. Un graphique illustre également la répartition des exigences par fonctionnalité.</p>
+                    
+                    <div class="my-6 p-4 border border-slate-200 rounded-md bg-slate-50">
+                        <h3 class="text-lg font-semibold text-emerald-600 mb-3">Aperçu de la Complexité des Fonctionnalités</h3>
+                        <p class="text-xs text-slate-500 mb-3">Ce graphique illustre le nombre de sous-points détaillés pour chaque fonctionnalité clé, donnant une idée de leur granularité dans le prompt.</p>
+                        <div class="chart-container">
+                            <canvas id="featuresChart"></canvas>
+                        </div>
+                    </div>
+
+                    <h2 class="text-xl font-semibold text-emerald-600 mb-3 mt-6">4. Fonctionnalités Clés Requises</h2>
+                    <div class="space-y-3" id="accordion-container">
+                        </div>
+                </div>
+
+                <div id="design_ux" class="tab-content space-y-6">
+                     <p class="text-sm text-slate-500 italic">Cette section détaille les attentes en matière de design et d'expérience utilisateur (UI/UX) pour assurer une application attrayante, intuitive et performante.</p>
+                    
+                    <section class="p-4 border border-slate-200 rounded-md bg-slate-50">
+                        <h2 class="text-xl font-semibold text-emerald-600 mb-3">5. Design et Expérience Utilisateur (UI/UX)</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-lg font-medium text-slate-700">Identité Visuelle Forte :</h3>
+                                <ul class="list-disc list-inside pl-4 text-slate-600">
+                                    <li>Utiliser impérativement les couleurs officielles du club (vert clair + blanc). Le logo du club doit être omniprésent mais intégré de manière élégante.</li>
+                                    <li>Design moderne, épuré, professionnel et passionné, reflétant l'esprit sportif.</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-slate-700">Navigation Intuitive :</h3>
+                                <ul class="list-disc list-inside pl-4 text-slate-600">
+                                    <li>Barre de navigation principale claire et accessible (en bas de l'écran pour mobile).</li>
+                                    <li>Menus logiques et bien organisés.</li>
+                                    <li>Recherche globale dans l'application (actualités, joueurs).</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-slate-700">Lisibilité et Accessibilité :</h3>
+                                <ul class="list-disc list-inside pl-4 text-slate-600">
+                                    <li>Polices de caractères modernes et très lisibles en Arabe (prioritaire) et en Français. Contraste suffisant.</li>
+                                    <li>Respect des directives d'accessibilité (WCAG) pour les personnes en situation de handicap.</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-slate-700">Performance et Réactivité :</h3>
+                                <ul class="list-disc list-inside pl-4 text-slate-600">
+                                    <li>Application rapide et fluide, même avec une connexion internet limitée.</li>
+                                    <li>Optimisation des images et des médias pour réduire les temps de chargement.</li>
+                                    <li>Feedback visuel pour les actions de l'utilisateur.</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-slate-700">Engagement :</h3>
+                                <ul class="list-disc list-inside pl-4 text-slate-600">
+                                    <li>Micro-interactions et animations subtiles pour rendre l'expérience plus vivante.</li>
+                                    <li>Mise en avant des contenus les plus pertinents pour l'utilisateur.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                
+                <div id="specs" class="tab-content space-y-6">
+                    <p class="text-sm text-slate-500 italic">Explorez ici les spécifications techniques de l'application, incluant les plateformes cibles, les langues supportées et les aspects techniques généraux.</p>
+
+                    <section class="p-4 border border-slate-200 rounded-md bg-slate-50">
+                        <h2 class="text-xl font-semibold text-emerald-600 mb-3">6. Plateformes Cibles</h2>
+                        <ul class="list-disc list-inside text-slate-700">
+                            <li><strong>iOS</strong> (iPhone, iPad) - via l'App Store.</li>
+                            <li><strong>Android</strong> (smartphones, tablettes) - via le Google Play Store.</li>
+                            <li>Envisager une Web App Progressive (PWA) pour une accessibilité plus large si pertinent.</li>
+                        </ul>
+                    </section>
+
+                    <section class="p-4 border border-slate-200 rounded-md bg-slate-50">
+                        <h2 class="text-xl font-semibold text-emerald-600 mb-3">7. Langue(s)</h2>
+                        <ul class="list-disc list-inside text-slate-700">
+                            <li><strong>Arabe (langue par défaut et principale).</strong></li>
+                            <li><strong>Français (seconde langue optionnelle).</strong></li>
+                            <li>Le contenu doit être disponible et de qualité égale dans les deux langues si l'option bilingue est retenue.</li>
+                        </ul>
+                    </section>
+
+                    <section class="p-4 border border-slate-200 rounded-md bg-slate-50">
+                        <h2 class="text-xl font-semibold text-emerald-600 mb-3">8. Aspects Techniques (Indications)</h2>
+                         <ul class="list-disc list-inside space-y-1 text-slate-700">
+                            <li><strong>Backend robuste :</strong> Pour la gestion de contenu (CMS), des utilisateurs, des notifications.</li>
+                            <li><strong>API :</strong> Si des données proviennent de sources externes (résultats, classements), une intégration API sera nécessaire.</li>
+                            <li><strong>Sécurité :</strong> Protection des données utilisateurs et de l'intégrité de l'application.</li>
+                            <li><strong>Analytics :</strong> Intégration d'outils d'analyse pour suivre l'utilisation de l'application et identifier les points d'amélioration.</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <footer class="mt-12 text-center text-sm text-slate-500">
+            <p>Cet explorateur interactif a été généré pour faciliter la compréhension du prompt de l'application mobile.</p>
+            <p>&copy; 2024 - Outil d'Analyse de Prompt</p>
+        </footer>
+    </div>
+
+<script>
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.getElementById(button.dataset.tab).classList.add('active');
+        });
+    });
+
+    const featuresData = {
+        "a. Accueil / Tableau de Bord Dynamique": [
+            "Affichage du prochain match (date, heure, lieu, adversaire, logo de l'adversaire, lien vers billetterie/infos stade).",
+            "Affichage du dernier résultat avec score et lien vers le résumé.",
+            "Les 3 dernières actualités importantes (avec miniatures).",
+            "Lien rapide vers le classement.",
+            "Accès facile aux sections principales via une barre de navigation intuitive."
+        ],
+        "b. Section Actualités & Médias": [
+            "<strong>Articles :</strong> Nouvelles du club, communiqués officiels, interviews (texte, audio, vidéo), analyses de matchs, vie du club.",
+            "<strong>Galerie Photos :</strong> Albums photos des matchs, entraînements, événements spéciaux, supporters. Haute résolution avec possibilité de zoom et de téléchargement (optionnel).",
+            "<strong>Galerie Vidéos :</strong> Résumés de matchs, buts, interviews en vidéo, reportages, messages des joueurs. Intégration possible depuis YouTube/Vimeo.",
+            "Filtres par catégorie (ex: Équipe Première, Jeunes, Mercato, Événements).",
+            "Option de partage des contenus sur les réseaux sociaux (WhatsApp, Facebook, X, Instagram).",
+            "Commentaires des utilisateurs sur les articles (modération nécessaire)."
+        ],
+        "c. Matchs & Compétitions": [
+            "<strong>Calendrier Complet :</strong> Liste de tous les matchs (passés et à venir) par compétition. Détails : date, heure (locale et GMT), adversaire, logo adversaire, stade, arbitre (si disponible).",
+            "<strong>Résultats Détaillés :</strong> Scores finaux, buteurs (avec minutes), passeurs décisifs, cartons, compositions d'équipe, statistiques clés du match (possession, tirs, etc.), chronologie des événements importants.",
+            "<strong>Fiche de Match en Direct (Live Score) :</strong><ul><li>Mise à jour du score en temps réel.</li><li>Notifications de buts, début/fin de mi-temps, cartons rouges.</li><li>Commentaires textuels en direct des actions clés.</li><li>Statistiques en direct.</li></ul>",
+            "<strong>Classements :</strong> Classements mis à jour pour toutes les compétitions où l'équipe est engagée."
+        ],
+        "d. Équipe (Effectif & Staff)": [
+            "<strong>Joueurs :</strong> Liste complète des joueurs de l'équipe première (et potentiellement des équipes de jeunes importantes). Pour chaque joueur : photo de haute qualité, nom complet, numéro de maillot, poste, date de naissance, nationalité, taille, poids, biographie courte, statistiques individuelles (buts, passes, matchs joués cette saison/carrière).",
+            "<strong>Staff Technique :</strong> Photos et rôles de l'entraîneur principal, des entraîneurs adjoints, préparateurs physiques, staff médical, etc."
+        ],
+        "e. Le Club": [
+            "<strong>Histoire du Club :</strong> Récit détaillé de la création, des moments marquants, des figures emblématiques.",
+            "<strong>Palmarès :</strong> Liste des trophées et distinctions remportés.",
+            "<strong>Stade :</strong> Informations sur le stade (nom, capacité, adresse, plan d'accès, histoire, photos).",
+            "<strong>Centre de Formation (si applicable) :</strong> Présentation, équipes, philosophie.",
+            "<strong>Valeurs et Mission du Club.</strong>",
+            "<strong>Organigramme / Direction.</strong>"
+        ],
+        "f. Espace Supporters / Communauté": [
+            "<strong>Forum de Discussion (modéré) :</strong> Permettre aux fans d'échanger sur les matchs, les joueurs, etc.",
+            "<strong>Sondages :</strong> \"Homme du match\", pronostics, questions sur le club.",
+            "<strong>Concours :</strong> Organiser des jeux avec des lots à gagner (maillots, billets).",
+            "<strong>Chants des Supporters :</strong> Paroles et fichiers audio/vidéo.",
+            "<strong>Liens vers les Groupes de Supporters Officiels.</strong>"
+        ],
+        "g. Notifications Push Personnalisables": [
+            "Alertes pour : début de match, buts (pour l'équipe et l'adversaire), score à la mi-temps, résultat final, cartons rouges, actualités urgentes, annonces de transferts, rappels de match.",
+            "Les utilisateurs doivent pouvoir choisir les types de notifications qu'ils souhaitent recevoir."
+        ],
+        "h. Boutique en Ligne (Optionnel - Phase 2)": [
+            "Vente de maillots, écharpes, et autres produits dérivés du club.",
+            "Paiement sécurisé intégré."
+        ],
+        "i. Billetterie (Optionnel - Phase 2 ou lien externe)": [
+            "Informations sur la vente des billets, prix, points de vente.",
+            "Lien vers une plateforme de billetterie en ligne si existante."
+        ],
+        "j. Paramètres Utilisateur": [
+            "Gestion du profil (si création de compte).",
+            "Gestion des notifications.",
+            "Choix de la langue (Arabe / Français).",
+            "Mode sombre / clair.",
+            "Section \"Aide / FAQ\".",
+            "\"À propos de l'application\" (version, crédits).",
+            "Politique de confidentialité et Conditions d'utilisation.",
+            "Option de contact / support."
+        ]
+    };
+
+    const accordionContainer = document.getElementById('accordion-container');
+    Object.entries(featuresData).forEach(([title, items]) => {
+        const featureId = title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase(); // Create a unique ID
+
+        const accordionItem = document.createElement('div');
+        accordionItem.className = 'border border-slate-200 rounded-md';
+
+        const button = document.createElement('button');
+        button.className = 'accordion-button w-full flex justify-between items-center p-4 bg-slate-100 hover:bg-emerald-50 focus:outline-none text-left';
+        button.setAttribute('aria-expanded', 'false');
+        button.setAttribute('aria-controls', `content-${featureId}`);
+        
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'text-md font-medium text-emerald-700';
+        titleSpan.textContent = title;
+        button.appendChild(titleSpan);
+
+        const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        iconSvg.setAttribute('class', 'w-5 h-5 text-emerald-600 transform transition-transform duration-200');
+        iconSvg.setAttribute('fill', 'none');
+        iconSvg.setAttribute('viewBox', '0 0 24 24');
+        iconSvg.setAttribute('stroke', 'currentColor');
+        const iconPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        iconPath.setAttribute('stroke-linecap', 'round');
+        iconPath.setAttribute('stroke-linejoin', 'round');
+        iconPath.setAttribute('stroke-width', '2');
+        iconPath.setAttribute('d', 'M19 9l-7 7-7-7');
+        iconSvg.appendChild(iconPath);
+        button.appendChild(iconSvg);
+
+        const content = document.createElement('div');
+        content.id = `content-${featureId}`;
+        content.className = 'accordion-content px-4 pb-2 text-slate-600';
+        
+        const ul = document.createElement('ul');
+        ul.className = 'list-disc list-inside space-y-2';
+        items.forEach(itemText => {
+            const li = document.createElement('li');
+            li.innerHTML = itemText; // Use innerHTML to support bold tags etc.
+            ul.appendChild(li);
+        });
+        content.appendChild(ul);
+
+        accordionItem.appendChild(button);
+        accordionItem.appendChild(content);
+        accordionContainer.appendChild(accordionItem);
+
+        button.addEventListener('click', () => {
+            const isExpanded = button.getAttribute('aria-expanded') === 'true';
+            button.setAttribute('aria-expanded', !isExpanded);
+            content.classList.toggle('open');
+            iconSvg.classList.toggle('rotate-180', !isExpanded);
+        });
+    });
+
+
+    // Chart.js for Features
+    const featureLabels = Object.keys(featuresData);
+    const featurePointCounts = Object.values(featuresData).map(items => items.length);
+
+    const ctx = document.getElementById('featuresChart').getContext('2d');
+    const featuresChart = new Chart(ctx, {
+        type: 'bar', // Changed to 'bar' for horizontal bars, or use 'bar' for vertical
+        data: {
+            labels: featureLabels.map(label => label.substring(0, label.indexOf(" ") + 2) + " " + label.substring(label.indexOf(":")+1).trim().substring(0,25) + "..."), // Shorten labels for chart
+            datasets: [{
+                label: 'Nombre de sous-points par fonctionnalité',
+                data: featurePointCounts,
+                backgroundColor: 'rgba(52, 211, 153, 0.6)', // Emerald-400 with opacity
+                borderColor: 'rgba(5, 150, 105, 1)', // Emerald-600
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y', // This makes the bar chart horizontal
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { // For horizontal bar chart, x is the value axis
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre de sous-points'
+                    },
+                    ticks: {
+                        stepSize: 1 // Ensure integer ticks
+                    }
+                },
+                y: { // For horizontal bar chart, y is the category axis
+                    ticks: {
+                         autoSkip: false, // Show all labels
+                         maxRotation: 0,
+                         minRotation: 0,
+                         callback: function(value, index, values) { // Custom label formatting if needed
+                            let label = this.getLabelForValue(value);
+                            if (label.length > 30) { // Example: truncate long labels
+                                return label.substring(0,27) + '...';
+                            }
+                            return label;
+                         }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Hiding legend as title is descriptive enough
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                             // Return the full original label for the tooltip title
+                            return featureLabels[tooltipItems[0].dataIndex];
+                        },
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.x !== null) {
+                                label += context.parsed.x;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
