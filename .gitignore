@@ -1,0 +1,5 @@
+node_modules/
+eschorbane-backend/node_modules/
+eschorbane-backend/.env
+npm-debug.log
+coverage/
